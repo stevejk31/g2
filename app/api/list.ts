@@ -1,8 +1,8 @@
 import { parse } from 'node-html-parser';
 import type html from 'node-html-parser/dist/nodes/html';
 
-interface YoyoDetail {
-  'prodId': string;
+export interface YoyoDetail {
+  'prodId'?: string;
   'href'?: string;
   'Status'?: string;
   'Diameter'?: string;
@@ -70,7 +70,7 @@ export const getNameToConfig = async () => {
     const header = child.querySelector('h3') || { innerText: '' };
     if (header.innerText && viewLink) {
       const yoyoConfig = await getYoYoDetails(viewLink);
-      nameToLink[header.innerText] = { ...yoyoConfig, imgSrc } || {};
+      nameToLink[header.innerText] = { ...yoyoConfig, imgSrc };
     }
   });
 
