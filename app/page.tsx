@@ -5,7 +5,12 @@ import Loading from '@/app/ui/atoms/Loading';
 import Yoyos from '@/app/ui/organisms/Yoyos';
 import YoyoFilter from '@/app/ui/organisms/YoyoFilter';
 
-export default async function Home() {
+interface HomeProps {
+  searchParams: Promise<{[ key: string ]: string | string[] | undefined }>
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const payload = await searchParams || {};
   return (
     <div className="p-5 w-full">
       <Typography variant="h1" component="h1">Yoyos</Typography>
@@ -18,7 +23,15 @@ export default async function Home() {
         <Suspense
           fallback={<Loading className="xl:w-2/3" />}
         >
-          <Yoyos className="xl:w-2/3" />
+          <Yoyos
+            className="xl:w-2/3"
+            diameterMin={payload['diameter-min']}
+            diameterMax={payload['diameter-max']}
+            widthMin={payload['width-min']}
+            widthMax={payload['width-max']}
+            weightMin={payload['weight-min']}
+            weightMax={payload['weight-max']}
+          />
         </Suspense>
       </div>
     </div>

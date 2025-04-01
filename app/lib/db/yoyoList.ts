@@ -18,10 +18,11 @@ export interface YoyoRow {
   'width': number;
   'weight': number;
   'response'?: string;
-  'axle'?: number;
-  'release'?: string;
-  'bearing'?: string;
-  'imgSrc'?: string;
+  'axle': number;
+  'release': string;
+  'bearing': string;
+  'img_src': string;
+  'update_date': string;
 }
 
 export const createYoyoListTable = async (doDropTable: boolean = false) => {
@@ -48,15 +49,17 @@ export const createYoyoListTable = async (doDropTable: boolean = false) => {
       axle SMALLINT NOT NULL,
       release TEXT NOT NULL,
       bearing TEXT NOT NULL,
-      img_src TEXT NOT NULL
+      img_src TEXT NOT NULL,
+      update_date TEXT NOT NULL
     );
   `;
 };
 
 export const fetchYoyoList = async () => {
-  const payload = await sql`
+  const payload = await sql<YoyoRow[]>`
     SELECT *
-    FROM yoyo_list;
+    FROM yoyo_list
+    ORDER BY name ASC;
   `;
   return payload;
 };
@@ -102,6 +105,7 @@ export const addYoyo = async (
   const colRelease = release || 'unknown';
   const colBearing = bearing || 'G2 Ripper';
   const colImgSrc = imgSrc || '';
+  const date = new Date();
 
   await sql`
     INSERT INTO yoyo_list(
@@ -116,7 +120,8 @@ export const addYoyo = async (
       axle,
       release,
       bearing,
-      img_src
+      img_src,
+      update_date
     )
     VALUES (
       ${name},
@@ -130,7 +135,8 @@ export const addYoyo = async (
       ${colAxle},
       ${colRelease},
       ${colBearing},
-      ${colImgSrc}
+      ${colImgSrc},
+      ${date.toISOString()}
     );
   `;
 };
