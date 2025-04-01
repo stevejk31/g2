@@ -134,3 +134,50 @@ export const addYoyo = async (
     );
   `;
 };
+
+interface MinMaxValue {
+  name: string;
+  min: number;
+  max: number;
+}
+export const fetchMaxAndMinValues = async ():Promise<MinMaxValue[]> => {
+  const payload = await sql`
+    SELECT
+      MIN(diameter) as diameter_min,
+      MAX(diameter) as diameter_max,
+      MIN(width) as width_min,
+      MAX(width) as width_max,
+      MIN(weight) as weight_min,
+      MAX(weight) as weight_max,
+      MIN(axle) as axle_min,
+      MAX(axle) as axle_max
+    FROM yoyo_list;
+  `;
+
+  const [{
+    diameter_min,
+    diameter_max,
+    width_min,
+    width_max,
+    weight_min,
+    weight_max,
+  }] = payload;
+
+  return [
+    {
+      name: 'diameter',
+      min: diameter_min,
+      max: diameter_max,
+    },
+    {
+      name: 'width',
+      min: width_min,
+      max: width_max,
+    },
+    {
+      name: 'weight',
+      min: weight_min,
+      max: weight_max,
+    },
+  ];
+};

@@ -64,8 +64,7 @@ export async function GET(request: Request) {
         );
       });
       await Promise.all(promises);
-    } catch (e: unknown) {
-      console.log(e);
+    } catch {
       return new Response(`table populate failed. last attempt ${date}`, {
         status: 500,
       });
@@ -76,14 +75,12 @@ export async function GET(request: Request) {
       }
 
       return Response.json({ date });
-    } catch (e: unknown) {
-      console.log(e);
+    } catch {
       return new Response(`table populated, but yoyopolltable failed . last attempt ${date}`, {
         status: 500,
       });
     }
-  } catch (e: unknown) {
-    console.log(e);
+  } catch {
     return new Response('poll table failed', {
       status: 500,
     });
