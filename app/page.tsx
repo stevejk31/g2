@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import Typography from '@mui/material/Typography';
 
 import Loading from '@/app/ui/atoms/Loading';
-import YoyoList from '@/app/ui/organisms/YoyoList';
+import Yoyos from '@/app/ui/organisms/Yoyos';
 import YoyoFilter from '@/app/ui/organisms/YoyoFilter';
 
 export default async function Home() {
@@ -18,7 +18,7 @@ export default async function Home() {
         <Suspense
           fallback={<Loading className="xl:w-2/3" />}
         >
-          <YoyoList className="xl:w-2/3" />
+          <Yoyos className="xl:w-2/3" />
         </Suspense>
       </div>
     </div>

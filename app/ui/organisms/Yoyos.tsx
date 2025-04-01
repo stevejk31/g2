@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 
 import { fetchYoyoList } from '@/app/lib/db/yoyoList';
 
-export default async function YoyoList({ className = '' }: { className?: string}) {
+export default async function Yoyos({ className = '' }: { className?: string}) {
   const yoyoList = await fetchYoyoList();
   return (
     <ul className={clsx('flex space-between flex-wrap gap-5', className)}>
@@ -14,10 +14,7 @@ export default async function YoyoList({ className = '' }: { className?: string}
             {name}
           </Typography>
           {weight}
-
-          {
-              img_src && <img src={img_src} alt={name} width={200} />
-            }
+          { img_src && <img src={img_src} alt={name} width={200} /> }
         </li>
       ))}
     </ul>
