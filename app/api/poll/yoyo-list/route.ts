@@ -2,8 +2,9 @@ import { updateYoYoPollTable, fetchMostRecentPollDate } from '@/app/lib/db/yoyoP
 import { getNameToConfig } from '@/app/lib/api/list';
 import { addYoyo, fetchYoyoList, createYoyoListTable } from '@/app/lib/db/yoyoList';
 
-const ALWAYS_UPDATE = process.env.ALWAYS_UPDATE_POLL_YOYO_LIST;
-const BOUNDARY_TO_UPDATE_MS = parseInt(process.env.BOUNDARY_TO_UPDATE_POLL_YOYO_LIST_MS as string, 10) || 60000;
+const ALWAYS_UPDATE = process.env.ALWAYS_UPDATE_POLL_YOYO_LIST || false;
+const BOUNDARY_TO_UPDATE_MS = parseInt(process.env.BOUNDARY_TO_UPDATE_POLL_YOYO_LIST_MS as string, 10)
+  || (3 * 24 * 60 * 60 * 1000);
 
 const shouldUpdate = (previousDate: Date) => {
   const todaysDate = new Date();
