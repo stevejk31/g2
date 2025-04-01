@@ -1,12 +1,15 @@
 import React from 'react';
-import { getNameToConfig } from './api/list';
+
+import { fetchYoyoList } from '@/app/lib/db/yoyoList';
 
 export default async function Home() {
-  const nameToLink = await getNameToConfig();
-
+  const yoyoList = await fetchYoyoList();
   return (
     <div>
+      hello
+      { JSON.stringify(yoyoList)}
       {
+        /*
         Object.entries(nameToLink).map(([name, yoyo]) => (
           <li key={name}>
             {name}
@@ -16,6 +19,7 @@ export default async function Home() {
             }
           </li>
         ))
+         */
       }
     </div>
   );

@@ -1,11 +1,15 @@
 import { parse } from 'node-html-parser';
 import type html from 'node-html-parser/dist/nodes/html';
 
-import { populateYoYoList } from '@/app/lib/yoyo';
+/**
+ * @fileoverview
+ *
+ * Scrubbing https://www.gsquaredyoyos.com/yoyo-list/.
+ */
 
 export interface YoyoDetail {
-  'prodId'?: string;
-  'href'?: string;
+  'prodId': string;
+  'href': string;
   'Status'?: string;
   'Diameter'?: string;
   'Width'?: string;
@@ -77,9 +81,6 @@ export const getNameToConfig = async () => {
   });
 
   await Promise.all(promises);
-
-  const neon = await populateYoYoList(nameToLink);
-  console.log(neon);
 
   return nameToLink;
 };
