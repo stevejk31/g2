@@ -1,6 +1,8 @@
 import { parse } from 'node-html-parser';
 import type html from 'node-html-parser/dist/nodes/html';
 
+import { populateYoYoList } from '@/app/lib/yoyo';
+
 export interface YoyoDetail {
   'prodId'?: string;
   'href'?: string;
@@ -75,6 +77,9 @@ export const getNameToConfig = async () => {
   });
 
   await Promise.all(promises);
+
+  const neon = await populateYoYoList(nameToLink);
+  console.log(neon);
 
   return nameToLink;
 };
