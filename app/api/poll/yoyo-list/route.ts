@@ -1,10 +1,8 @@
 import { getNameToConfig } from '@/app/lib/api/list';
 import {
-  addYoyos, fetchYoyoList, createYoyoListTable, convertPollYoyoDetailToRow,
+  addYoyos, createYoyoListTable, convertPollYoyoDetailToRow,
 } from '@/app/lib/db/yoyoList';
 import { updateYoYoPollTable, fetchMostRecentPollDate } from '@/app/lib/db/yoyoPoll';
-
-import type { YoyoDetail } from '@/app/lib/api/list';
 
 const ALWAYS_UPDATE = process.env.ALWAYS_UPDATE_POLL_YOYO_LIST || false;
 const BOUNDARY_TO_UPDATE_MS = parseInt(process.env.BOUNDARY_TO_UPDATE_POLL_YOYO_LIST_MS as string, 10)
@@ -43,20 +41,7 @@ export async function GET(request: Request) {
     }
     try {
       const fetchYoyos = await getNameToConfig();
-      const dbYoyos = await fetchYoyoList();
-      const seenYoyos: YoyoDetail[] = [];
-      const newYoyos = Object.entries(fetchYoyos)
-        .filter(([fetchedName, yoyoDetails]) => {
-          let seen = false;
-          dbYoyos.forEach(({ name }) => {
-            if (name === fetchedName) {
-              seen = true;
-              seenYoyos.push(yoyoDetails);
-            }
-          });
-          return !seen;
-        }).map(([, yoyoDetails]) => convertPollYoyoDetailToRow(yoyoDetails));
-
+      const newYoyos = Object.values(fetchYoyos).map((yoyoDetails) => convertPollYoyoDetailToRow(yoyoDetails));
       await addYoyos(newYoyos);
     } catch {
       return new Response(`table populate failed. last attempt ${date}`, {

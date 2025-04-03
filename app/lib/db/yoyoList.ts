@@ -118,10 +118,37 @@ export const createYoyoListTable = async (doDropTable: boolean = false) => {
   `;
 };
 
+export const fetchYoyoListCount = async () => {
+  const payload = await sql<YoyoRow[]>`
+    SELECT COUNT(*)
+    FROM yoyo_list
+  `;
+  return payload;
+};
+
 export const fetchYoyoList = async () => {
   const payload = await sql<YoyoRow[]>`
-    SELECT *
-    FROM yoyo_list
+    SELECT
+      name,
+      prod_id,
+      href,
+      status,
+      diameter,
+      width,
+      weight,
+      response,
+      axle,
+      release,
+      bearing,
+      img_src,
+      update_date
+    FROM
+      yoyo_list AS a
+      INNER JOIN (
+        SELECT name as b_name, MAX(update_date) AS max_value
+        FROM yoyo_list
+        GROUP BY b_name
+      ) AS b ON b.b_name= a.name AND b.max_value = a.update_date
     ORDER BY name ASC;
   `;
   return payload;
