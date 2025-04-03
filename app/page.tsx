@@ -8,6 +8,10 @@ const PAGES = [
     displayName: 'yoyos',
     href: '/yoyos',
   },
+  {
+    displayName: 'color ways',
+    href: '/color-ways',
+  },
 ];
 
 export default async function HomePage() {
