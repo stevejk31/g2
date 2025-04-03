@@ -62,14 +62,17 @@ export default async function Yoyos({
     || isValueLessThan(weightMin, weight));
 
   return (
-    <ul className={clsx('flex items-stretch justify-around flex-wrap gap-5', className)}>
+    <ul className={clsx('flex items-stretch justify-around flex-wrap gap-7', className)}>
       { yoyoList.filter(filter).map(({ name, href, img_src }) => (
         <li key={name} className="flex flex-col align-center justify-between gap-2">
           { img_src && <img src={img_src} alt={name} width={250} /> }
           <Typography>
             {name}
           </Typography>
-          <Button href={href}>Go to G2</Button>
+          <div className="flex flex-row gap-2 justify-between items-center">
+            <Button href={`/yoyos/${name}`} variant="outlined">Details</Button>
+            <Button href={href} variant="contained">Go to G2</Button>
+          </div>
         </li>
       ))}
     </ul>

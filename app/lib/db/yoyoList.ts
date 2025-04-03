@@ -53,11 +53,11 @@ const validateStatus = (status: unknown) => (isStatus(status) ? status : DEFAULT
 const validateDiameter = (diameter: unknown) => convertStringToNumber(diameter, DEFAULT_VALUES.diameter);
 const validateWidth = (width: unknown) => convertStringToNumber(width, DEFAULT_VALUES.width);
 const validateWeight = (weight: unknown) => convertStringToNumber(weight, DEFAULT_VALUES.weight);
-const validateResponse = (response: unknown) => (isString(response) ? response : DEFAULT_VALUES.response);
+const validateResponse = (response: unknown) => (isString(response) ? response.trim() : DEFAULT_VALUES.response);
 const validateAxle = (axle: unknown) => convertStringToNumber(axle, DEFAULT_VALUES.axle, true);
-const validateRelease = (release: unknown) => (isString(release) ? release : DEFAULT_VALUES.release);
-const validateBearing = (bearing: unknown) => (isString(bearing) ? bearing : DEFAULT_VALUES.bearing);
-const validateImgSrc = (imgSrc: unknown) => (isString(imgSrc) ? imgSrc : DEFAULT_VALUES.img_src);
+const validateRelease = (release: unknown) => (isString(release) ? release.trim() : DEFAULT_VALUES.release);
+const validateBearing = (bearing: unknown) => (isString(bearing) ? bearing.trim() : DEFAULT_VALUES.bearing);
+const validateImgSrc = (imgSrc: unknown) => (isString(imgSrc) ? imgSrc.trim() : DEFAULT_VALUES.img_src);
 
 export const convertPollYoyoDetailToRow = ({
   name,
@@ -73,7 +73,7 @@ export const convertPollYoyoDetailToRow = ({
   Bearing,
   imgSrc,
 } : YoyoDetail): YoyoRow => ({
-  name,
+  name: name.trim(),
   status: validateStatus(Status),
   diameter: validateDiameter(Diameter),
   width: validateWidth(Width),
@@ -85,7 +85,7 @@ export const convertPollYoyoDetailToRow = ({
   update_date: getCurrentDate(),
   img_src: validateImgSrc(imgSrc),
   prod_id: parseInt(prodId, 10),
-  href,
+  href: href.trim(),
 });
 
 export const createYoyoListTable = async (doDropTable: boolean = false) => {
@@ -123,6 +123,17 @@ export const fetchYoyoListCount = async () => {
     SELECT COUNT(*)
     FROM yoyo_list
   `;
+  return payload;
+};
+
+export const fetchYoyoByName = async (name: YoyoRow['name']) => {
+  const payload = await sql<YoyoRow[]>`
+    SELECT *
+    FROM yoyo_list
+    WHERE LOWER(name) = LOWER(${name})
+    ORDER BY update_date DESC;
+  `;
+
   return payload;
 };
 

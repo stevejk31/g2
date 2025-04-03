@@ -5,6 +5,7 @@ import {
 import { updateYoYoPollTable, fetchMostRecentPollDate } from '@/app/lib/db/yoyoPoll';
 
 const ALWAYS_UPDATE = process.env.ALWAYS_UPDATE_POLL_YOYO_LIST || false;
+// Default to every days
 const BOUNDARY_TO_UPDATE_MS = parseInt(process.env.BOUNDARY_TO_UPDATE_POLL_YOYO_LIST_MS as string, 10)
   || (3 * 24 * 60 * 60 * 1000);
 
