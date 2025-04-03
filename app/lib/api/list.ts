@@ -1,5 +1,9 @@
 import { parse } from 'node-html-parser';
 import type html from 'node-html-parser/dist/nodes/html';
+import fsPromises from 'fs/promises';
+import path from 'path';
+
+const isDev = process.env.NODE_ENV === 'development';
 
 /**
  * @fileoverview
@@ -8,6 +12,7 @@ import type html from 'node-html-parser/dist/nodes/html';
  */
 
 export interface YoyoDetail {
+  'name': string;
   'prodId': string;
   'href': string;
   'Status'?: string;
@@ -36,7 +41,7 @@ const findViewLink = (node: html) => {
   return found;
 };
 
-const getYoYoDetails = async (href: string): Promise<YoyoDetail> => {
+const getYoYoDetails = async (href: string): Promise<Partial<YoyoDetail>> => {
   const config: Record<string, string> = {};
   const payload = await fetch(href);
   const payloadText = await payload.text();
@@ -58,8 +63,7 @@ const getYoYoDetails = async (href: string): Promise<YoyoDetail> => {
       }
     });
   });
-  const prodId = href.split('?single_prod_id=')[1];
-  return { ...config, href, prodId };
+  return config;
 };
 
 export const getNameToConfig = async () => {
@@ -75,12 +79,33 @@ export const getNameToConfig = async () => {
     const imgSrc = img?.getAttribute('src');
     const header = child.querySelector('h3') || { innerText: '' };
     if (header.innerText && viewLink) {
+      const prodId = viewLink.split('?single_prod_id=')[1];
       const yoyoConfig = await getYoYoDetails(viewLink);
-      nameToLink[header.innerText] = { ...yoyoConfig, imgSrc };
+      nameToLink[header.innerText] = {
+        ...yoyoConfig,
+        name: header.innerText,
+        href: viewLink,
+        prodId,
+        imgSrc,
+      };
     }
   });
 
   await Promise.all(promises);
+  if (isDev) {
+    fsPromises.writeFile(
+      path.join(process.cwd(), `backup/yoyo-list-poll-${new Date().toISOString().split('T')[0]}.json`),
+      JSON.stringify(Object.values(nameToLink).sort((a, b) => {
+        if (a.name > b.name) {
+          return 1;
+        }
+        if (a.name < b.name) {
+          return -1;
+        }
+        return 0;
+      })),
+    );
+  }
 
   return nameToLink;
 };

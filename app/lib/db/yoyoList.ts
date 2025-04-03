@@ -1,13 +1,19 @@
+/* eslint camelcase: off */
+
 import sql from '@/app/lib/db/sql';
 
-const STATUS_VALUES = ['Retired', 'Active'] as const;
-type StatusType = typeof STATUS_VALUES[number];
+import { isString, getCurrentDate, convertStringToNumber } from '@/app/lib/dbUtils/converter';
+
+import type { YoyoDetail } from '@/app/lib/api/list';
 
 /**
  * @fileoverview
  *
  * Access values from yoyo_list table.
  */
+
+const STATUS_VALUES = ['Retired', 'Active'] as const;
+type StatusType = typeof STATUS_VALUES[number];
 
 export interface YoyoRow {
   'name': string;
@@ -17,13 +23,70 @@ export interface YoyoRow {
   'diameter': number;
   'width': number;
   'weight': number;
-  'response'?: string;
+  'response': string;
   'axle': number;
   'release': string;
   'bearing': string;
   'img_src': string;
   'update_date': string;
 }
+
+type NewYoyoRow = Omit<YoyoRow, 'update_date'>;
+type OptionalYoyoRow = Omit<NewYoyoRow, 'prod_id' | 'name' | 'href'>;
+
+const DEFAULT_VALUES: OptionalYoyoRow = {
+  status: STATUS_VALUES[0],
+  diameter: 55,
+  width: 45,
+  weight: 65,
+  response: 'Flowable',
+  axle: 10,
+  release: 'unknown',
+  bearing: 'G2 Ripper',
+  img_src: '',
+};
+
+const isStatus = (unknown: unknown): unknown is StatusType => !!unknown
+  && STATUS_VALUES.includes(unknown as StatusType);
+
+const validateStatus = (status: unknown) => (isStatus(status) ? status : DEFAULT_VALUES.status);
+const validateDiameter = (diameter: unknown) => convertStringToNumber(diameter, DEFAULT_VALUES.diameter);
+const validateWidth = (width: unknown) => convertStringToNumber(width, DEFAULT_VALUES.width);
+const validateWeight = (weight: unknown) => convertStringToNumber(weight, DEFAULT_VALUES.weight);
+const validateResponse = (response: unknown) => (isString(response) ? response : DEFAULT_VALUES.response);
+const validateAxle = (axle: unknown) => convertStringToNumber(axle, DEFAULT_VALUES.axle, true);
+const validateRelease = (release: unknown) => (isString(release) ? release : DEFAULT_VALUES.release);
+const validateBearing = (bearing: unknown) => (isString(bearing) ? bearing : DEFAULT_VALUES.bearing);
+const validateImgSrc = (imgSrc: unknown) => (isString(imgSrc) ? imgSrc : DEFAULT_VALUES.img_src);
+
+export const convertPollYoyoDetailToRow = ({
+  name,
+  prodId,
+  href,
+  Status,
+  Diameter,
+  Width,
+  Weight,
+  Response,
+  Axle,
+  Release,
+  Bearing,
+  imgSrc,
+} : YoyoDetail): YoyoRow => ({
+  name,
+  status: validateStatus(Status),
+  diameter: validateDiameter(Diameter),
+  width: validateWidth(Width),
+  weight: validateWeight(Weight),
+  response: validateResponse(Response),
+  axle: validateAxle(Axle),
+  release: validateRelease(Release),
+  bearing: validateBearing(Bearing),
+  update_date: getCurrentDate(),
+  img_src: validateImgSrc(imgSrc),
+  prod_id: parseInt(prodId, 10),
+  href,
+});
 
 export const createYoyoListTable = async (doDropTable: boolean = false) => {
   if (doDropTable) {
@@ -64,22 +127,11 @@ export const fetchYoyoList = async () => {
   return payload;
 };
 
-export const convertStringToNumber = (
-  value: string | undefined | null,
-  defaultValue: number,
-  isInt: boolean = false,
-) => {
-  if (!value) {
-    return defaultValue;
-  }
-  try {
-    if (isInt) {
-      return parseInt(value.replace(/\[^0-9.]/g, ''), 10);
-    }
-    return parseFloat(value.replace(/\[^0-9.]/g, ''));
-  } catch {
-    return defaultValue;
-  }
+export const addYoyos = async (yoyoRows: YoyoRow[]) => {
+  await sql`
+    INSERT INTO yoyo_list
+    ${sql(yoyoRows)}
+  `;
 };
 
 export const addYoyo = async (
@@ -96,16 +148,15 @@ export const addYoyo = async (
   bearing: string | null | undefined,
   imgSrc: string | null | undefined,
 ) => {
-  const colStatus = (!!status && STATUS_VALUES.includes(status as StatusType)) ? status : STATUS_VALUES[0];
-  const colDiameter = convertStringToNumber(diameter, 55);
-  const colWidth = convertStringToNumber(width, 45);
-  const colWeight = convertStringToNumber(weight, 65);
-  const colResponse = response || 'Flowable';
-  const colAxle = convertStringToNumber(axle, 10, true);
-  const colRelease = release || 'unknown';
-  const colBearing = bearing || 'G2 Ripper';
-  const colImgSrc = imgSrc || '';
-  const date = new Date();
+  const colStatus = validateStatus(status);
+  const colDiameter = validateDiameter(diameter);
+  const colWidth = validateWidth(width);
+  const colWeight = validateWidth(weight);
+  const colResponse = validateResponse(response);
+  const colAxle = validateAxle(axle);
+  const colRelease = validateRelease(release);
+  const colBearing = validateBearing(bearing);
+  const colImgSrc = validateImgSrc(imgSrc);
 
   await sql`
     INSERT INTO yoyo_list(
@@ -136,7 +187,7 @@ export const addYoyo = async (
       ${colRelease},
       ${colBearing},
       ${colImgSrc},
-      ${date.toISOString()}
+      ${getCurrentDate()}
     );
   `;
 };
