@@ -462,6 +462,13 @@
   resolved "https://registry.yarnpkg.com/@mui/core-downloads-tracker/-/core-downloads-tracker-7.0.1.tgz#09949138fbd5319f5ee850c709d9ad9696cf7008"
   integrity sha512-T5DNVnSD9pMbj4Jk/Uphz+yvj9dfpl2+EqsOuJtG12HxEihNG5pd3qzX5yM1Id4dDwKRvM3dPVcxyzavTFhJeA==
 
+"@mui/icons-material@^7.0.1":
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/@mui/icons-material/-/icons-material-7.0.1.tgz#4a25d74f8f1bfc5eac924819001efae9b39be2d9"
+  integrity sha512-x8Em7LISFQ6s/KeZj6ZKwJHq2WttRNe9KJLWFa72eQx7B53s/TzMKOEjGKB/YyhOx+bqqSv1pMvK373M4Xf07A==
+  dependencies:
+    "@babel/runtime" "^7.26.10"
+
 "@mui/material-nextjs@^7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@mui/material-nextjs/-/material-nextjs-7.0.0.tgz#5ae7450c8013d02fe7d0745e1702bccb9cd62541"
@@ -2588,6 +2595,11 @@ natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==
+
+next-themes@^0.4.6:
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/next-themes/-/next-themes-0.4.6.tgz#8d7e92d03b8fea6582892a50a928c9b23502e8b6"
+  integrity sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==
 
 next@15.2.4:
   version "15.2.4"

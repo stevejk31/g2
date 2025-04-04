@@ -49,14 +49,12 @@ export async function GET() {
         }
 
         return Response.json({ date });
-      } catch (e) {
-        console.log(e);
+      } catch {
         return new Response(`table populated, but yoyopolltable failed . last attempt ${date}`, {
           status: 500,
         });
       }
-    } catch (e) {
-      console.log(e);
+    } catch {
       return new Response(`table populate failed. last succesful attempt ${date}`, {
         status: 500,
       });

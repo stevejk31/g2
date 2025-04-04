@@ -78,10 +78,19 @@ const eslintConfig = [
 
       // Ignore casing from 3rd party libraries.
       // https://eslint.org/docs/latest/rules/camelcase
-      camelcase: ['warn', { ignoreImports: true }],
+      camelcase: ['warn',
+        // Ignore column names
+        {
+          ignoreImports: true,
+          allow: ['color_id', 'yoyo_name', 'img_src'],
+        },
+      ],
       'max-len': ['error', { code: 120 }],
 
       'no-plusplus': 'off',
+
+      /** Next specific rules */
+      '@next/next/no-img-element': 'off',
     },
   }),
 ];
