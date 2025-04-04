@@ -1,4 +1,5 @@
 import sql from '@/app/lib/db/sql';
+import { getCurrentDate } from '@/app/lib/dbUtils/converter';
 
 /**
  * @fileoverview
@@ -9,6 +10,7 @@ import sql from '@/app/lib/db/sql';
 export interface PollTableRow {
   id: number;
   date: string;
+  page: string;
 }
 
 export const createPollTable = async (doDropTable: boolean = false) => {
@@ -18,29 +20,28 @@ export const createPollTable = async (doDropTable: boolean = false) => {
     `;
 
     await sql`
-      DISCARD ALL;
+      DISCARD PLANS;
     `;
   }
 
   await sql`
-    CREATE TABLE IF NOT EXISTS yoyo_poll(id SERIAL PRIMARY KEY, date TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS yoyo_poll(id SERIAL PRIMARY KEY, date TEXT NOT NULL, page TEXT NOT NULL);
   `;
 };
 
-export const updateYoYoPollTable = async () => {
-  const date = new Date();
-  await createPollTable();
+export const updateYoYoPollTable = async (page: string) => {
   await sql`
-    INSERT INTO yoyo_poll(date)
-    VALUES(${date.toISOString()})
+    INSERT INTO yoyo_poll(date, page)
+    VALUES(${getCurrentDate()}, ${page})
   `;
 };
 
-export const fetchMostRecentPollDate = async () => {
+export const fetchMostRecentPollDate = async (page: string) => {
   try {
     const payload = await sql<PollTableRow[]>`
       SELECT *
       FROM yoyo_poll
+      WHERE page = ${page}
       ORDER BY id DESC
       LIMIT 1;
     `;

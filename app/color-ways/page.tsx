@@ -13,7 +13,13 @@ export default async function ColorWaysPage() {
         {colorWays.map(({ name, src }) => (
           <li key={name}>
             {name}
-            <Image alt={name} src={src as string} width="200" height="200" />
+            {
+              src.includes('http') ? (
+                <img alt={name} src={src as string} width="200" height="200" />
+              ) : (
+                <Image alt={name} src={src as string} width="200" height="200" />
+              )
+            }
           </li>
         ))}
       </ul>

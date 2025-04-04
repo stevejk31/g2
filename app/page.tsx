@@ -24,7 +24,8 @@ export default async function HomePage() {
         <a href="https://www.gsquaredyoyos.com/">g2</a>
         .
       </p>
-      <ul className="flex flex-row align-center justify-between list-none">
+      <Typography variant="h2" component="h2">Pages:</Typography>
+      <ul className="flex flex-row align-center justify-around list-none">
         {
           PAGES.map(({ displayName, href }) => (
             <li key={displayName}>

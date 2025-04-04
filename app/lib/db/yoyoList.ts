@@ -17,10 +17,11 @@ type StatusType = typeof STATUS_VALUES[number];
 
 export interface YoyoRow {
   'name': string;
-  'prod_id': number;
+  'prod_id'?: number;
   'href': string;
   'status': StatusType;
   'diameter': number;
+  'body': string;
   'width': number;
   'weight': number;
   'response': string;
@@ -29,18 +30,20 @@ export interface YoyoRow {
   'bearing': string;
   'img_src': string;
   'update_date': string;
+  unverified?: boolean;
 }
 
 type NewYoyoRow = Omit<YoyoRow, 'update_date'>;
-type OptionalYoyoRow = Omit<NewYoyoRow, 'prod_id' | 'name' | 'href'>;
+type RequiredOptionalYoyoFields = Omit<NewYoyoRow, 'name' | 'href' | 'prod_id'>;
 
-const DEFAULT_VALUES: OptionalYoyoRow = {
+const DEFAULT_VALUES: RequiredOptionalYoyoFields = {
   status: STATUS_VALUES[0],
   diameter: 55,
   width: 45,
   weight: 65,
   response: 'Flowable',
   axle: 10,
+  body: '6061(?)',
   release: 'unknown',
   bearing: 'G2 Ripper',
   img_src: '',
@@ -58,6 +61,7 @@ const validateAxle = (axle: unknown) => convertStringToNumber(axle, DEFAULT_VALU
 const validateRelease = (release: unknown) => (isString(release) ? release.trim() : DEFAULT_VALUES.release);
 const validateBearing = (bearing: unknown) => (isString(bearing) ? bearing.trim() : DEFAULT_VALUES.bearing);
 const validateImgSrc = (imgSrc: unknown) => (isString(imgSrc) ? imgSrc.trim() : DEFAULT_VALUES.img_src);
+const validateBody = (body: unknown) => (isString(body) ? body.trim() : DEFAULT_VALUES.body);
 
 export const convertPollYoyoDetailToRow = ({
   name,
@@ -74,6 +78,7 @@ export const convertPollYoyoDetailToRow = ({
   imgSrc,
 } : YoyoDetail): YoyoRow => ({
   name: name.trim(),
+  body: validateBody(''),
   status: validateStatus(Status),
   diameter: validateDiameter(Diameter),
   width: validateWidth(Width),
@@ -95,16 +100,17 @@ export const createYoyoListTable = async (doDropTable: boolean = false) => {
     `;
 
     await sql`
-      DISCARD ALL;
+      DISCARD PLANS;
     `;
   }
 
   await sql`
     CREATE TABLE IF NOT EXISTS yoyo_list(
       name TEXT NOT NULL,
-      prod_id SMALLINT NOT NULL,
-      href TEXT NOT NULL,
+      prod_id SMALLINT,
+      href TEXT,
       status TEXT NOT NULL,
+      body TEXT,
       diameter DECIMAL NOT NULL,
       width DECIMAL NOT NULL,
       weight DECIMAL NOT NULL,
@@ -113,7 +119,8 @@ export const createYoyoListTable = async (doDropTable: boolean = false) => {
       release TEXT NOT NULL,
       bearing TEXT NOT NULL,
       img_src TEXT NOT NULL,
-      update_date TEXT NOT NULL
+      update_date TEXT NOT NULL,
+      unverified BOOLEAN
     );
   `;
 };
@@ -128,23 +135,13 @@ export const fetchYoyoListCount = async () => {
 
 export const fetchYoyoByName = async (name: YoyoRow['name']) => {
   const payload = await sql<YoyoRow[]>`
-    SELECT *
-    FROM yoyo_list
-    WHERE LOWER(name) = LOWER(${name})
-    ORDER BY update_date DESC;
-  `;
-
-  return payload;
-};
-
-export const fetchYoyoList = async () => {
-  const payload = await sql<YoyoRow[]>`
     SELECT
       name,
       prod_id,
       href,
       status,
       diameter,
+      body,
       width,
       weight,
       response,
@@ -152,7 +149,32 @@ export const fetchYoyoList = async () => {
       release,
       bearing,
       img_src,
-      update_date
+      update_date,
+      unverified
+    FROM yoyo_list
+    WHERE LOWER(name) = LOWER(${name})
+    ORDER BY update_date DESC;
+  `;
+  return payload;
+};
+
+export const fetchYoyoList = async () => sql<YoyoRow[]>`
+    SELECT
+      name,
+      prod_id,
+      href,
+      status,
+      diameter,
+      body,
+      width,
+      weight,
+      response,
+      axle,
+      release,
+      bearing,
+      img_src,
+      update_date,
+      unverified
     FROM
       yoyo_list AS a
       INNER JOIN (
@@ -162,71 +184,11 @@ export const fetchYoyoList = async () => {
       ) AS b ON b.b_name= a.name AND b.max_value = a.update_date
     ORDER BY name ASC;
   `;
-  return payload;
-};
 
 export const addYoyos = async (yoyoRows: YoyoRow[]) => {
   await sql`
     INSERT INTO yoyo_list
     ${sql(yoyoRows)}
-  `;
-};
-
-export const addYoyo = async (
-  name: string,
-  prodId: string,
-  href: string,
-  status: string | null | undefined,
-  diameter: string | null | undefined,
-  width: string | null | undefined,
-  weight: string | null | undefined,
-  response: string | null | undefined,
-  axle: string | null | undefined,
-  release: string | null | undefined,
-  bearing: string | null | undefined,
-  imgSrc: string | null | undefined,
-) => {
-  const colStatus = validateStatus(status);
-  const colDiameter = validateDiameter(diameter);
-  const colWidth = validateWidth(width);
-  const colWeight = validateWidth(weight);
-  const colResponse = validateResponse(response);
-  const colAxle = validateAxle(axle);
-  const colRelease = validateRelease(release);
-  const colBearing = validateBearing(bearing);
-  const colImgSrc = validateImgSrc(imgSrc);
-
-  await sql`
-    INSERT INTO yoyo_list(
-      name,
-      prod_id,
-      href,
-      status,
-      diameter,
-      width,
-      weight,
-      response,
-      axle,
-      release,
-      bearing,
-      img_src,
-      update_date
-    )
-    VALUES (
-      ${name},
-      ${prodId},
-      ${href},
-      ${colStatus},
-      ${colDiameter},
-      ${colWidth},
-      ${colWeight},
-      ${colResponse},
-      ${colAxle},
-      ${colRelease},
-      ${colBearing},
-      ${colImgSrc},
-      ${getCurrentDate()}
-    );
   `;
 };
 

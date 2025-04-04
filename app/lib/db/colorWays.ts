@@ -12,12 +12,10 @@ export interface ColorWayRow {
   id: number;
   name: string;
   src: string;
+  unverified?: boolean;
 }
 
-export interface NewColorWay {
-  name: string;
-  src: string;
-}
+export type NewColorWay = Omit<ColorWayRow, 'id'>;
 
 export const addColorWays = async (colorWays: NewColorWay[]) => {
   await sql`
@@ -41,7 +39,8 @@ export const createColorWayTable = async (doSeed: boolean = false, doDropTable: 
     CREATE TABLE IF NOT EXISTS color_way(
       id SERIAL NOT NULL PRIMARY KEY,
       name TEXT NOT NULL,
-      src TEXT NOT NULL
+      src TEXT NOT NULL,
+      unverified BOOLEAN
     );
   `;
 
@@ -65,3 +64,18 @@ export const fetchColorWays = async () => sql<ColorWayRow[]>`
     FROM color_way
     ORDER BY name ASC;
   `;
+
+export const fetchColorWayByName = async (name: ColorWayRow['name']) => sql<ColorWayRow[]>`
+    SELECT *
+    FROM color_way
+    WHERE LOWER(name) = LOWER(${name});
+  `;
+
+export const addColorWay = async (colorWays: NewColorWay) => {
+  await sql`
+    INSERT INTO color_way
+    ${sql(colorWays)};
+  `;
+
+  return fetchColorWayByName(colorWays.name);
+};

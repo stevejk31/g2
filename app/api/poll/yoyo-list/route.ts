@@ -4,10 +4,14 @@ import {
 } from '@/app/lib/db/yoyoList';
 import { updateYoYoPollTable, fetchMostRecentPollDate } from '@/app/lib/db/yoyoPoll';
 
+const PAGE = 'yoyo-list';
+
+const isDev = process.env.NODE_ENV === 'development';
+
 const ALWAYS_UPDATE = process.env.ALWAYS_UPDATE_POLL_YOYO_LIST || false;
 // Default to every days
 const BOUNDARY_TO_UPDATE_MS = parseInt(process.env.BOUNDARY_TO_UPDATE_POLL_YOYO_LIST_MS as string, 10)
-  || (3 * 24 * 60 * 60 * 1000);
+  || (7 * 24 * 60 * 60 * 1000);
 
 const shouldUpdate = (previousDate: Date) => {
   const todaysDate = new Date();
@@ -25,7 +29,7 @@ const shouldUpdate = (previousDate: Date) => {
 export async function GET(request: Request) {
   let date;
   const refreshDB = request.url.includes('refresh_db');
-  if (refreshDB) {
+  if (refreshDB && isDev) {
     await createYoyoListTable(true);
     return new Response('db flushed', {
       status: 200,
@@ -33,7 +37,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    date = await fetchMostRecentPollDate();
+    date = await fetchMostRecentPollDate(PAGE);
 
     if (!!date && !shouldUpdate(date)) {
       return new Response('poll request too soon', {
@@ -44,19 +48,19 @@ export async function GET(request: Request) {
       const fetchYoyos = await getNameToConfig();
       const newYoyos = Object.values(fetchYoyos).map((yoyoDetails) => convertPollYoyoDetailToRow(yoyoDetails));
       await addYoyos(newYoyos);
-    } catch {
-      return new Response(`table populate failed. last attempt ${date}`, {
-        status: 500,
-      });
-    }
-    try {
-      if (!ALWAYS_UPDATE) {
-        date = await updateYoYoPollTable();
-      }
+      try {
+        if (!ALWAYS_UPDATE) {
+          date = await updateYoYoPollTable(PAGE);
+        }
 
-      return Response.json({ date });
+        return Response.json({ date });
+      } catch {
+        return new Response(`table populated, but yoyopolltable failed . last attempt ${date}`, {
+          status: 500,
+        });
+      }
     } catch {
-      return new Response(`table populated, but yoyopolltable failed . last attempt ${date}`, {
+      return new Response(`table populate failed. last succesful attempt ${date}`, {
         status: 500,
       });
     }
