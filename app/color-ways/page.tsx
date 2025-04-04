@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { fetchColorWays } from '@/app/lib/db/colorWays';
 
 export default async function ColorWaysPage() {
-  const colorWays = await fetchColorWays();
+  const colorWays = await fetchColorWays({ unverified: false });
   return (
     <div className="w-full p-5">
       <Typography variant="h1" component="h1">Color ways</Typography>

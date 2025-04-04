@@ -59,17 +59,69 @@ export const createColorWayTable = async (doSeed: boolean = false, doDropTable: 
   }
 };
 
-export const fetchColorWays = async () => sql<ColorWayRow[]>`
-    SELECT *
-    FROM color_way
-    ORDER BY name ASC;
+//  id: number;
+//  name: string;
+//  src: string;
+//  unverified?: boolean;
+
+const buildIdWhereStatement = (id: ColorWayRow['id'], isAnd: boolean = true) => {
+  if (isAnd) {
+    return sql`AND id = ${id}`;
+  }
+  return sql`WHERE id = ${id}`;
+};
+
+const buildNameWhereStatement = (name: ColorWayRow['name'], isAnd: boolean = true) => {
+  if (isAnd) {
+    return sql`AND LOWER(name) = LOWER(${name})`;
+  }
+  return sql`WHERE LOWER(name) = LOWER(${name})`;
+};
+
+const buildSrcWhereStatement = (src: ColorWayRow['src'], isAnd: boolean = true) => {
+  if (isAnd) {
+    return sql`AND LOWER(src) = LOWER(${src})`;
+  }
+  return sql`WHERE LOWER(src) = LOWER(${src})`;
+};
+
+const buildUnverifiedWhereStatement = (unverified: ColorWayRow['unverified'], isAnd: boolean = true) => {
+  if (unverified === true) {
+    if (isAnd) {
+      return sql`AND unverified = TRUE`;
+    }
+    return sql`WHERE unverified = TRUE`;
+  }
+  if (unverified === false) {
+    if (isAnd) {
+      return sql`AND (unverified = FALSE OR unverified IS NULL)`;
+    }
+    return sql`WHERE (unverified = FALSE OR unverified IS NULL)`;
+  }
+
+  return sql``;
+};
+
+const buildWhereQuery = ({
+  id, name, src, unverified,
+}: Partial<ColorWayRow>) => sql`
+    ${id ? buildIdWhereStatement(id, false) : sql``}
+    ${name ? buildNameWhereStatement(name, !!id) : sql``}
+    ${src ? buildSrcWhereStatement(src, !!id || !!name) : sql``}
+    ${unverified !== undefined ? buildUnverifiedWhereStatement(unverified, !!id || !!name || !!src) : sql``}
   `;
 
-export const fetchColorWayByName = async (name: ColorWayRow['name']) => sql<ColorWayRow[]>`
+export const fetchColorWays = async (where: Partial<ColorWayRow> = {}, isAsc:boolean = true) => {
+  const payload = await sql<ColorWayRow[]>`
     SELECT *
     FROM color_way
-    WHERE LOWER(name) = LOWER(${name});
+    ${buildWhereQuery(where)}
+    ORDER BY name ${isAsc ? sql`ASC` : sql`DESC`};
   `;
+  return payload;
+};
+
+export const fetchColorWayByName = async (name: ColorWayRow['name']) => fetchColorWays({ name });
 
 export const addColorWay = async (colorWays: NewColorWay) => {
   await sql`

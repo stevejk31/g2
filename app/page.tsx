@@ -19,7 +19,7 @@ export default async function HomePage() {
     <div className="p-5 w-full">
       <Typography variant="h1" component="h1">G2 Community Yoyo</Typography>
       <p>
-        Fan project to document releases by
+        Project to document yoyos by
         {' '}
         <a href="https://www.gsquaredyoyos.com/">g2</a>
         .

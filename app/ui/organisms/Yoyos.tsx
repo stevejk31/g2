@@ -3,6 +3,8 @@ import clsx from 'clsx';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
+import StyledLink from '@/app/ui/atoms/StyledLink';
+
 import { fetchYoyoList } from '@/app/lib/db/yoyoList';
 
 import type { YoyoRow } from '@/app/lib/db/yoyoList';
@@ -70,8 +72,8 @@ export default async function Yoyos({
             {name}
           </Typography>
           <div className="flex flex-row gap-2 justify-between items-center">
-            <Button href={`/yoyos/${name}`} variant="outlined">Details</Button>
-            <Button href={href} variant="contained">Go to G2</Button>
+            <StyledLink href={`/yoyos/${name}`}>Details</StyledLink>
+            <Button href={href} variant="contained" target="_blank">Go to G2</Button>
           </div>
         </li>
       ))}

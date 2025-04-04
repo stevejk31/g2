@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Slider from '@mui/material/Slider';
+
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 import type { SliderProps } from '@mui/material/Slider';
@@ -14,6 +15,7 @@ interface SliderQueryParamProps extends
   }
 
 export default function SliderQueryParam(props: SliderQueryParamProps) {
+  // TODO add debounce callback.
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
