@@ -57,7 +57,52 @@ const getYoYoDetails = async (href: string): Promise<Partial<YoyoDetail>> => {
         value = '';
       }
       if (className === 'value-block' && !!key) {
-        value = li.innerText;
+        value = li.innerText.trim();
+        if (key.toLowerCase().trim() === 'release') {
+          let isMonthYear = value.includes('.');
+          let date: string[] = [];
+
+          if (isMonthYear) {
+            date = value.split('.');
+          }
+
+          if (!isMonthYear) {
+            isMonthYear = value.includes('/');
+            date = value.split('/');
+          }
+
+          if (!isMonthYear) {
+            isMonthYear = value.includes('-');
+            date = value.split('-');
+          }
+
+          if (isMonthYear && date.length === 2) {
+            let [month, year] = date;
+            month = month.trim();
+            year = year.trim();
+            if (month.length === 4) {
+              const tempYear = year;
+              year = month;
+              month = tempYear;
+            }
+            try {
+              value = new Date(parseInt(year, 10), parseInt(month, 10)).toISOString();
+            } catch {
+              // Assume new
+              value = new Date().toISOString();
+            }
+          } else if (value.length === 4) {
+            try {
+              value = new Date(parseInt(value, 10), 1, 1).toISOString();
+            } catch {
+              // Assume new
+              value = new Date().toISOString();
+            }
+          } else {
+            // Assume new
+            value = new Date().toISOString();
+          }
+        }
         config[key] = value;
         key = '';
       }

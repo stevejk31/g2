@@ -37,7 +37,7 @@ export default async function YoyosPage({ searchParams }: YoyosPageProps) {
       <FilterContent
         sortBy={(
           <OrderByQueryParam
-            values={orderByValues.map((value) => ({ value, displayName: value }))}
+            values={orderByValues.map((value) => ({ value, displayName: value.replace('_', ' ') }))}
           />
         )}
         filter={(

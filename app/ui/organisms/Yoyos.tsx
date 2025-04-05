@@ -81,7 +81,9 @@ export default async function Yoyos({
 
   return (
     <ul className={clsx('flex items-stretch justify-around flex-wrap gap-7 list-none', className)}>
-      { yoyoList.filter(filter).map(({ name, href, img_src }) => (
+      { yoyoList.filter(filter).map(({
+        name, href, img_src, release,
+      }) => (
         <li key={name} className="flex flex-col align-center justify-between gap-2">
           { img_src && <img src={img_src} alt={name} width={250} /> }
           <Typography>
