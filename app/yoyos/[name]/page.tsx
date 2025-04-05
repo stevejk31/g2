@@ -15,7 +15,7 @@ export default async function YoyoDetailPage({ params }: {
     redirect('/yoyos');
   }
 
-  if (!yoyoDetails) {
+  if (!yoyoDetails || yoyoDetails.length === 0) {
     redirect('/yoyos');
   }
   return (

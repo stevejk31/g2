@@ -152,7 +152,7 @@ export const fetchYoyoByName = async (name: YoyoRow['name']) => {
       update_date,
       unverified
     FROM yoyo_list
-    WHERE LOWER(name) LIKE ${`%${name}%`}
+    WHERE LOWER(name) LIKE LOWER(${`%${name}%`})
     ORDER BY update_date DESC;
   `;
   return payload;
