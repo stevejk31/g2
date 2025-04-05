@@ -23,11 +23,11 @@ export default function SiteNav() {
         PAGES.map(({ displayName, href }, idx) => (
           <Fragment key={displayName}>
             <li className="p-5">
-              <StyledLink href={href} className="p-2">{displayName}</StyledLink>
+              <StyledLink href={href}>{displayName}</StyledLink>
             </li>
             {
               (idx + 1) < PAGES.length && (
-                <li className="p-5">|</li>
+                <li className="py-5">|</li>
               )
             }
           </Fragment>
