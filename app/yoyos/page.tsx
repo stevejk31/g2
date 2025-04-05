@@ -33,7 +33,7 @@ export default async function YoyosPage({ searchParams }: YoyosPageProps) {
 
   return (
     <div className="p-5 w-full">
-      <Typography variant="h1" component="h1">Yoyos</Typography>
+      <Typography variant="h1" component="h1">yoyos</Typography>
       <FilterContent
         sortBy={(
           <OrderByQueryParam

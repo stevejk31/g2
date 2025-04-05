@@ -26,7 +26,7 @@ export default async function ColorWaysPage({ searchParams }: ColorWayPageProps)
 
   return (
     <div className="w-full p-5">
-      <Typography variant="h1" component="h1">Color ways</Typography>
+      <Typography variant="h1" component="h1">color ways</Typography>
       <FilterContent
         sortBy={(
           <>
