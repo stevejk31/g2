@@ -13,7 +13,12 @@ const LI_CLASS_NAME = `xl:border-b ${LI_PADDING}`;
 export default async function YoyoFilter({ className = '' }: { className?: string}) {
   const minMaxValues = await fetchMaxAndMinValues();
   return (
-    <ul className={clsx('flex justify-start items-start flex-wrap gap-5 xl:items-stretch xl:gap-1', className)}>
+    <ul
+      className={clsx(
+        'flex flex-row justify-start items-start flex-wrap gap-5 xl:items-stretch xl:gap-1 xl:flex-col',
+        className,
+      )}
+    >
       <li className={LI_CLASS_NAME}>
         <NameFilterQueryParam />
       </li>

@@ -44,7 +44,7 @@ export default async function YoyosPage({ searchParams }: YoyosPageProps) {
           <Suspense
             fallback={<Loading className="w-full" />}
           >
-            <YoyoFilter className="flex-row xl:flex-col" />
+            <YoyoFilter />
           </Suspense>
         )}
       >

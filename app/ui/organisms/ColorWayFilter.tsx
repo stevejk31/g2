@@ -5,7 +5,12 @@ import NameFilterQueryParam from '@/app/ui/molecules/NameFilterQueryParam';
 
 export default async function ColorWayFilter({ className = '' }: { className?: string}) {
   return (
-    <ul className={clsx('flex justify-start flex-wrap gap-5', className)}>
+    <ul
+      className={clsx(
+        'flex flex-row justify-start items-start flex-wrap gap-5 xl:items-stretch xl:gap-1 xl:flex-col',
+        className,
+      )}
+    >
       <li>
         <NameFilterQueryParam />
       </li>
