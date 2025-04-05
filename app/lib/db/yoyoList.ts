@@ -152,13 +152,74 @@ export const fetchYoyoByName = async (name: YoyoRow['name']) => {
       update_date,
       unverified
     FROM yoyo_list
-    WHERE LOWER(name) = LOWER(${name})
+    WHERE LOWER(name) LIKE ${`%${name}%`}
     ORDER BY update_date DESC;
   `;
   return payload;
 };
 
-export const fetchYoyoList = async () => sql<YoyoRow[]>`
+/**
+ * Order by values supported by query.
+ */
+export const orderByValues: (keyof YoyoRow)[] = [
+  'name',
+  'prod_id',
+  'diameter',
+  'width',
+  'weight',
+  'release',
+  'update_date',
+];
+export const isOrderByValue = (unknown: unknown): unknown is keyof YoyoRow => !!unknown
+  && orderByValues.includes(unknown as keyof YoyoRow);
+
+interface FetchMostRecentYoYosParams {
+  where?: {
+    name?: string;
+  }
+  orderBy?: {
+    isAsc?: boolean;
+    column?: typeof orderByValues[number];
+  }
+}
+
+const buildNameWhereStatement = (name: YoyoRow['name'], isAnd: boolean = true) => {
+  if (isAnd) {
+    return sql`AND LOWER(name) LIKE LOWER(${`%${name}%`})`;
+  }
+  return sql`WHERE LOWER(name) LIKE LOWER(${`%${name}%`})`;
+};
+
+const buildWhereQuery = ({
+  name,
+}: FetchMostRecentYoYosParams['where'] = {}) => sql`
+  ${name ? buildNameWhereStatement(name) : sql``}
+`;
+
+const buildOrderColumnStatement = (column: keyof YoyoRow) => {
+  switch (column) {
+    case 'prod_id':
+      return sql`prod_id`;
+    case 'diameter':
+      return sql`diameter`;
+    case 'width':
+      return sql`width`;
+    case 'weight':
+      return sql`weight`;
+    case 'release':
+      return sql`release`;
+    case 'update_date':
+      return sql`update_date`;
+    default:
+      return sql`name`;
+  }
+};
+
+const buildOrderByQuery = ({ isAsc = true, column = 'name' }: FetchMostRecentYoYosParams['orderBy'] = {}) => sql`
+  ORDER BY ${buildOrderColumnStatement(column)} ${isAsc ? sql`ASC` : sql`DESC`}
+`;
+
+export const fetchMostRecentYoYos = async ({ where, orderBy }: FetchMostRecentYoYosParams = {}) => sql<YoyoRow[]>`
     SELECT
       name,
       prod_id,
@@ -182,7 +243,8 @@ export const fetchYoyoList = async () => sql<YoyoRow[]>`
         FROM yoyo_list
         GROUP BY b_name
       ) AS b ON b.b_name= a.name AND b.max_value = a.update_date
-    ORDER BY name ASC;
+    ${buildWhereQuery(where)}
+    ${buildOrderByQuery(orderBy)};
   `;
 
 export const addYoyos = async (yoyoRows: YoyoRow[]) => {

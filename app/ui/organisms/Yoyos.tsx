@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 
 import StyledLink from '@/app/ui/atoms/StyledLink';
 
-import { fetchYoyoList } from '@/app/lib/db/yoyoList';
+import { fetchMostRecentYoYos } from '@/app/lib/db/yoyoList';
 
 import type { YoyoRow } from '@/app/lib/db/yoyoList';
 
@@ -37,24 +37,40 @@ const isValueLessThan = (comparitor: SearchParamType, value: number) => {
 
 interface YoyosProps {
   className?: string;
-  diameterMin: SearchParamType;
-  diameterMax: SearchParamType;
-  widthMin: SearchParamType;
-  widthMax: SearchParamType;
-  weightMin: SearchParamType;
-  weightMax: SearchParamType;
+  filterOptions: {
+    diameterMin: SearchParamType;
+    diameterMax: SearchParamType;
+    searchName: string | undefined;
+    widthMin: SearchParamType;
+    widthMax: SearchParamType;
+    weightMin: SearchParamType;
+    weightMax: SearchParamType;
+  }
+  orderBy?: {
+    isAsc: boolean;
+    column: keyof YoyoRow;
+  }
 }
 
 export default async function Yoyos({
   className = '',
-  diameterMin,
-  diameterMax,
-  widthMin,
-  widthMax,
-  weightMin,
-  weightMax,
+  filterOptions: {
+    diameterMin,
+    diameterMax,
+    searchName,
+    widthMin,
+    widthMax,
+    weightMin,
+    weightMax,
+  },
+  orderBy = { isAsc: true, column: 'name' },
 }: YoyosProps) {
-  const yoyoList = await fetchYoyoList();
+  const yoyoList = await fetchMostRecentYoYos({
+    where: {
+      name: searchName,
+    },
+    orderBy,
+  });
 
   const filter = ({ weight, diameter, width }: YoyoRow) => !(isValueGreaterThan(diameterMax, diameter)
     || isValueGreaterThan(widthMax, width)

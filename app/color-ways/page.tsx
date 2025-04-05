@@ -1,28 +1,53 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import Typography from '@mui/material/Typography';
-import Image from 'next/image';
+import Loading from '@/app/ui/atoms/Loading';
 
-import { fetchColorWays } from '@/app/lib/db/colorWays';
+import ColorWays from '@/app/ui/organisms/ColorWays';
+import ColorWayFilter from '@/app/ui/organisms/ColorWayFilter';
+import FilterContent from '@/app/ui/templates/FilterContent';
 
-export default async function ColorWaysPage() {
-  const colorWays = await fetchColorWays({ unverified: false });
+interface ColorWayPageProps {
+  searchParams: Promise<{[ key: string ]: string | string[] | undefined }>
+}
+
+export default async function ColorWaysPage({ searchParams }: ColorWayPageProps) {
+  const payload = await searchParams || {};
+  const name = (!!payload.name && typeof payload.name === 'string') ? payload.name : '';
+  let unverified;
+
+  if (payload.unverified !== undefined) {
+    if (payload.unverified === 'true') {
+      unverified = true;
+    }
+    if (payload.unverified === 'false') {
+      unverified = false;
+    }
+  }
+
   return (
     <div className="w-full p-5">
       <Typography variant="h1" component="h1">Color ways</Typography>
-      <ul className="flex items-stretch justify-around flex-wrap gap-7 list-none">
-        {colorWays.map(({ name, src }) => (
-          <li key={name}>
-            {name}
-            {
-              src.includes('http') ? (
-                <img alt={name} src={src as string} width="200" height="200" />
-              ) : (
-                <Image alt={name} src={src as string} width="200" height="200" />
-              )
-            }
-          </li>
-        ))}
-      </ul>
+      <FilterContent
+        sortBy={(
+          <>
+            hello
+          </>
+        )}
+        filter={(
+          <Suspense fallback={<Loading className="w-full" />}>
+            <ColorWayFilter />
+          </Suspense>
+        )}
+      >
+        <Suspense fallback={<Loading className="w-full" />}>
+          <ColorWays
+            filterOptions={{
+              name,
+              unverified,
+            }}
+          />
+        </Suspense>
+      </FilterContent>
     </div>
   );
 }

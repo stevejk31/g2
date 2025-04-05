@@ -1,7 +1,7 @@
 import fsPromises from 'fs/promises';
 import path from 'path';
 
-import { fetchYoyoList } from '@/app/lib/db/yoyoList';
+import { fetchMostRecentYoYos } from '@/app/lib/db/yoyoList';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -17,7 +17,7 @@ export async function GET() {
       status: 400,
     });
   }
-  const yoyos = await fetchYoyoList();
+  const yoyos = await fetchMostRecentYoYos();
 
   fsPromises.writeFile(
     path.join(process.cwd(), `backup/yoyo-list-${new Date().toISOString().split('T')[0]}.json`),

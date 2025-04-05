@@ -27,15 +27,14 @@ interface SliderQueryParamProps extends
  * Note: MUI will throw irrelevant console error around use of defaultValue, but it is required to get
  * proper query parameter based functionality.
  */
-export default function SliderQueryParam(props: SliderQueryParamProps) {
+export default function SliderQueryParam({
+  label, min, max, ...rest
+}: SliderQueryParamProps) {
   const [isExpanded, setExpanded] = useState<boolean>(false);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
   const params = new URLSearchParams(searchParams ?? '');
-  const {
-    label, min, max, ...rest
-  } = props;
   const minKey = `${label}-min`;
   const maxKey = `${label}-max`;
   const displayMin = Math.floor(min);

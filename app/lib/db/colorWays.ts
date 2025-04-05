@@ -59,11 +59,6 @@ export const createColorWayTable = async (doSeed: boolean = false, doDropTable: 
   }
 };
 
-//  id: number;
-//  name: string;
-//  src: string;
-//  unverified?: boolean;
-
 const buildIdWhereStatement = (id: ColorWayRow['id'], isAnd: boolean = true) => {
   if (isAnd) {
     return sql`AND id = ${id}`;
@@ -73,9 +68,9 @@ const buildIdWhereStatement = (id: ColorWayRow['id'], isAnd: boolean = true) => 
 
 const buildNameWhereStatement = (name: ColorWayRow['name'], isAnd: boolean = true) => {
   if (isAnd) {
-    return sql`AND LOWER(name) = LOWER(${name})`;
+    return sql`AND LOWER(name) LIKE LOWER(${`%${name}%`})`;
   }
-  return sql`WHERE LOWER(name) = LOWER(${name})`;
+  return sql`WHERE LOWER(name) LIKE LOWER(${`%${name}%`})`;
 };
 
 const buildSrcWhereStatement = (src: ColorWayRow['src'], isAnd: boolean = true) => {
