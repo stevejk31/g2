@@ -1,7 +1,7 @@
 import { parse } from 'node-html-parser';
 import type html from 'node-html-parser/dist/nodes/html';
 
-import { fetchYoyoByName } from '@/app/lib/db/yoyoList';
+import { addYoyos, fetchYoyoByName, DEFAULT_VALUES } from '@/app/lib/db/yoyoList';
 import { fetchColorWayByName, addColorWay } from '@/app/lib/db/colorWays';
 
 import type { YoyoRow } from '@/app/lib/db/yoyoList';
@@ -26,8 +26,18 @@ const descriptionHelper = (line: string, isNumber: boolean = true) => {
   }
 };
 
+interface ProductPageYoyoConfig {
+  diameter?: number;
+  width?: number;
+  response?: string;
+  body?: string;
+  weight?: number;
+  axle?: number;
+  bearing?: string;
+}
+
 export const parseProductPage = async (href: string | undefined | null) => {
-  const yoyoConfig: Record<string, string | number> = {};
+  const yoyoConfig: ProductPageYoyoConfig = {};
   if (!href || !href.includes('http')) {
     return yoyoConfig;
   }
@@ -66,20 +76,32 @@ export const parseProductPage = async (href: string | undefined | null) => {
 export const parseProductInfo = async (productItem: html) => {
   let dbYoyos: YoyoRow[] = [];
   let dbColorWayNames: ColorWayRow[] = [];
+  let imgSrc = '';
   const title = productItem.querySelector('.woocommerce-loop-product__title');
   const img = productItem.querySelector('img');
   const productLink = productItem.querySelector('a.product_type_simple')?.getAttribute('href');
+  if (img) {
+    imgSrc = img.getAttribute('src') || '';
+  }
 
   if (title?.innerText && img && productLink) {
     const [yoyoName, colorWayName] = title.innerText.split(' &#8211; ');
     dbYoyos = await fetchYoyoByName(yoyoName);
 
     // TODO flip conditional
-    if (dbYoyos.length >= 0) {
-      parseProductPage(productLink);
+    if (dbYoyos.length === 0) {
+      const yoyoConfig = await parseProductPage(productLink);
+      await addYoyos([{
+        ...DEFAULT_VALUES,
+        ...yoyoConfig,
+        name: yoyoName,
+        href: productLink,
+        img_src: imgSrc,
+      }]);
+      dbYoyos = await fetchYoyoByName(yoyoName);
     }
     dbColorWayNames = await fetchColorWayByName(colorWayName);
-    const imgSrc = img.getAttribute('src');
+
     if (imgSrc && dbColorWayNames.length === 0) {
       const rawImg = imgSrc.replace(/(-)\d+x\d+/, '');
       dbColorWayNames = await addColorWay({
@@ -90,7 +112,11 @@ export const parseProductInfo = async (productItem: html) => {
     }
   }
 
-  return { productLink, yoyo: dbYoyos[0], colorWay: dbColorWayNames[0] };
+  return {
+    productLink,
+    yoyo: dbYoyos[0],
+    colorWay: dbColorWayNames[0],
+  };
 };
 
 export const fetchYoyos = async () => {

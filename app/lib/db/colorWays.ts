@@ -117,6 +117,7 @@ export const fetchColorWays = async (where: Partial<ColorWayRow> = {}, isAsc:boo
 };
 
 export const fetchColorWayByName = async (name: ColorWayRow['name']) => fetchColorWays({ name });
+export const fetchColorWayById = async (id: ColorWayRow['id']) => fetchColorWays({ id });
 
 export const addColorWay = async (colorWays: NewColorWay) => {
   await sql`

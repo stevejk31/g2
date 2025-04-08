@@ -11,8 +11,6 @@ export default async function HomePage() {
         <a href="https://www.gsquaredyoyos.com/">g2</a>
         .
       </p>
-      <Typography variant="h2" component="h2">Pages:</Typography>
-
     </div>
   );
 }

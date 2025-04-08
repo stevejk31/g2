@@ -49,14 +49,18 @@ export async function GET() {
         }
 
         return Response.json({ date });
-      } catch {
-        return new Response(`table populated, but yoyopolltable failed . last attempt ${date}`, {
+      } catch (e) {
+        return Response.json({
+          error: JSON.stringify(e),
           status: 500,
+          message: `table populated, but yoyopolltable failed . last attempt ${date}`,
         });
       }
-    } catch {
-      return new Response(`table populate failed. last succesful attempt ${date}`, {
+    } catch (e) {
+      return Response.json({
+        error: JSON.stringify(e),
         status: 500,
+        message: `table populate failed. last succesful attempt ${date}`,
       });
     }
   } catch {

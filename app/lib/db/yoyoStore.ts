@@ -1,6 +1,7 @@
 /* eslint camelcase: off */
 import sql from '@/app/lib/db/sql';
 import { getCurrentDate } from '@/app/lib/dbUtils/converter';
+import type { ColorWayRow } from '@/app/lib/db/colorWays';
 
 /**
  * @fileoverview
@@ -59,6 +60,20 @@ export const fetchYoyoByHref = async (yoyoHrefs: YoyoStoreRow['href'][]) => {
 
   return dbHrefs;
 };
+
+export type YoyoStoreAndColorWay = YoyoStoreRow & ColorWayRow;
+export const fetchYoyoListingsByName = async (yoyoName: YoyoStoreRow['yoyo_name']) => sql<YoyoStoreAndColorWay []>`
+    SELECT *
+    FROM
+      yoyo_store as a
+      INNER JOIN (
+        SELECT href as b_href, MAX(date) AS max_value
+        FROM yoyo_store
+        GROUP BY b_href
+      ) AS b ON b.b_href = a.href AND b.max_value = a.date
+    JOIN color_way ON color_id = id
+    WHERE LOWER(yoyo_name) = LOWER(${yoyoName});
+  `;
 
 export const addYoyos = async (yoyoRows: NewYoyoStoreRow[]) => {
   const seenHrefs = await fetchYoyoByHref(yoyoRows.map(({ href }) => href));

@@ -3,6 +3,7 @@
 import sql from '@/app/lib/db/sql';
 
 import { isString, getCurrentDate, convertStringToNumber } from '@/app/lib/dbUtils/converter';
+import { buildWhereOrAnd } from '@/app/lib/dbUtils/queryBuilder';
 
 import type { YoyoDetail } from '@/app/lib/api/list';
 
@@ -36,7 +37,7 @@ export interface YoyoRow {
 type NewYoyoRow = Omit<YoyoRow, 'update_date'>;
 type RequiredOptionalYoyoFields = Omit<NewYoyoRow, 'name' | 'href' | 'prod_id'>;
 
-const DEFAULT_VALUES: RequiredOptionalYoyoFields = {
+export const DEFAULT_VALUES: RequiredOptionalYoyoFields = {
   status: STATUS_VALUES[0],
   diameter: 55,
   width: 45,
@@ -76,7 +77,7 @@ export const convertPollYoyoDetailToRow = ({
   Release,
   Bearing,
   imgSrc,
-} : YoyoDetail): YoyoRow => ({
+} : YoyoDetail): NewYoyoRow => ({
   name: name.trim(),
   body: validateBody(''),
   status: validateStatus(Status),
@@ -87,7 +88,6 @@ export const convertPollYoyoDetailToRow = ({
   axle: validateAxle(Axle),
   release: validateRelease(Release),
   bearing: validateBearing(Bearing),
-  update_date: getCurrentDate(),
   img_src: validateImgSrc(imgSrc),
   prod_id: parseInt(prodId, 10),
   href: href.trim(),
@@ -152,7 +152,7 @@ export const fetchYoyoByName = async (name: YoyoRow['name']) => {
       update_date,
       unverified
     FROM yoyo_list
-    WHERE LOWER(name) LIKE LOWER(${`%${name}%`})
+    WHERE LOWER(name) = LOWER(${name})
     ORDER BY update_date DESC;
   `;
   return payload;
@@ -183,12 +183,10 @@ interface FetchMostRecentYoYosParams {
   }
 }
 
-const buildNameWhereStatement = (name: YoyoRow['name'], isAnd: boolean = true) => {
-  if (isAnd) {
-    return sql`AND LOWER(name) LIKE LOWER(${`%${name}%`})`;
-  }
-  return sql`WHERE LOWER(name) LIKE LOWER(${`%${name}%`})`;
-};
+const buildNameWhereStatement = (
+  name: YoyoRow['name'],
+  isAnd: boolean = true,
+) => sql`${buildWhereOrAnd(isAnd)} LOWER(name) LIKE LOWER(${`%${name}%`})`;
 
 const buildWhereQuery = ({
   name,
@@ -247,7 +245,9 @@ export const fetchMostRecentYoYos = async ({ where, orderBy }: FetchMostRecentYo
     ${buildOrderByQuery(orderBy)};
   `;
 
-export const addYoyos = async (yoyoRows: YoyoRow[]) => {
+export const addYoyos = async (newYoyoRows: NewYoyoRow[]) => {
+  const update_date = getCurrentDate();
+  const yoyoRows: YoyoRow[] = newYoyoRows.map((yoyo) => ({ ...yoyo, update_date }));
   await sql`
     INSERT INTO yoyo_list
     ${sql(yoyoRows)}

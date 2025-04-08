@@ -58,7 +58,7 @@ export default function OrderByQueryParam({
         <Select
           className="min-w-[200px]"
           labelId={labelId}
-          defaultValue={paramValue}
+          defaultValue={paramValue || ''}
           onChange={handleChange}
           {...selectProps}
         >
